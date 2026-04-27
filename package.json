@@ -1,0 +1,10 @@
+{
+  "name": "partenza",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "verify:samples": "npm run build && node build/dev/verify_samples.js"
+  }
+}

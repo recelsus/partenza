@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Partenza Bookmark",
+  "version": "0.1.0",
+  "description": "Bookmark source and cache extension for GitHub and HTTP static files.",
+  "permissions": [
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Partenza Bookmark",
+    "default_popup": "popup.html"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+1"
+      }
+    },
+    "add-current-tab": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+2"
+      },
+      "description": "Add current tab to bookmarks"
+    }
+  },
+  "options_page": "options.html"
+}
