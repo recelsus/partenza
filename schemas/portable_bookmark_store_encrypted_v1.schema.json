@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://partenza.local/schemas/portable_bookmark_store_encrypted_v1.schema.json",
+  "title": "Portable Bookmark Store Encrypted Document v1",
+  "type": "object",
+  "required": [
+    "format",
+    "version",
+    "encoding",
+    "crypto",
+    "payload"
+  ],
+  "properties": {
+    "format": {
+      "const": "portable-bookmark-store"
+    },
+    "version": {
+      "const": 1
+    },
+    "encoding": {
+      "const": "encrypted"
+    },
+    "crypto": {
+      "type": "object",
+      "required": [
+        "algorithm",
+        "kdf",
+        "kdf_iterations",
+        "hash",
+        "salt",
+        "iv"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "AES-GCM"
+        },
+        "kdf": {
+          "const": "PBKDF2"
+        },
+        "kdf_iterations": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "hash": {
+          "const": "SHA-256"
+        },
+        "salt": {
+          "type": "string"
+        },
+        "iv": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "payload": {
+      "type": "string"
+    },
+    "extensions": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

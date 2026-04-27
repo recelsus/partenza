@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://partenza.local/schemas/portable_bookmark_store_plain_v1.schema.json",
+  "title": "Portable Bookmark Store Plain Document v1",
+  "type": "object",
+  "required": [
+    "format",
+    "version",
+    "encoding",
+    "title",
+    "items"
+  ],
+  "properties": {
+    "format": {
+      "const": "portable-bookmark-store"
+    },
+    "version": {
+      "const": 1
+    },
+    "encoding": {
+      "const": "plain"
+    },
+    "title": {
+      "type": "string"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/bookmark_item"
+      }
+    },
+    "extensions": {
+      "$ref": "#/$defs/extensions"
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "bookmark_item": {
+      "type": "object",
+      "required": [
+        "id",
+        "title",
+        "url",
+        "tags",
+        "note",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "note": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      },
+      "additionalProperties": true
+    },
+    "extensions": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}
