@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>Partenza</title>
+    <style>
+      body {
+        font-family: "Avenir Next", "Helvetica Neue", sans-serif;
+        margin: 0;
+        padding: 14px;
+        width: 380px;
+        background:
+          radial-gradient(circle at top left, #3b3834 0%, #26231f 38%, #171513 100%);
+        color: #ece4d7;
+      }
+
+      .shell {
+        border: 1px solid rgba(215, 195, 165, 0.12);
+        border-radius: 22px;
+        background:
+          linear-gradient(180deg, rgba(39, 35, 31, 0.96), rgba(28, 24, 21, 0.96));
+        box-shadow: 0 24px 50px rgba(0, 0, 0, 0.28);
+        backdrop-filter: blur(4px);
+        overflow: hidden;
+        min-height: 520px;
+      }
+
+      .hero {
+        padding: 10px 0 0;
+      }
+
+      .row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .row.tight {
+        gap: 6px;
+      }
+
+      button,
+      select {
+        font: inherit;
+      }
+
+      button {
+        border: 0;
+        border-radius: 999px;
+        background: linear-gradient(180deg, #d7bf95, #b99a68);
+        padding: 7px 11px;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-size: 11px;
+        color: #241d15;
+        box-shadow: inset 0 0 0 1px rgba(255, 241, 219, 0.1);
+      }
+
+      button:hover {
+        background: linear-gradient(180deg, #dcc6a0, #c29f71);
+      }
+
+      #refresh_button {
+        font-size: 18px;
+        line-height: 1;
+      }
+
+      select {
+        flex: 1 1 auto;
+        border: 1px solid rgba(215, 195, 165, 0.16);
+        border-radius: 14px;
+        background: rgba(52, 46, 41, 0.92);
+        padding: 7px 9px;
+        color: #ebe1d2;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.12);
+      }
+
+      input[type="search"] {
+        width: 100%;
+        border: 1px solid rgba(215, 195, 165, 0.16);
+        border-radius: 14px;
+        background: rgba(52, 46, 41, 0.92);
+        padding: 8px 11px;
+        color: #ebe1d2;
+        box-sizing: border-box;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.12);
+      }
+
+      input[type="text"],
+      input[type="url"],
+      textarea {
+        width: 100%;
+        border: 1px solid rgba(215, 195, 165, 0.16);
+        border-radius: 14px;
+        background: rgba(52, 46, 41, 0.92);
+        padding: 9px 11px;
+        color: #ebe1d2;
+        box-sizing: border-box;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.12);
+      }
+
+      input::placeholder,
+      textarea::placeholder {
+        color: rgba(235, 225, 210, 0.45);
+      }
+
+      textarea {
+        min-height: 84px;
+        resize: vertical;
+      }
+
+      #status {
+        position: absolute;
+        left: 14px;
+        right: 14px;
+        bottom: 14px;
+        border-radius: 14px;
+        padding: 10px 12px;
+        font-size: 12px;
+        line-height: 1.3;
+        color: #fff7ec;
+        background: rgba(188, 148, 92, 0.96);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+        opacity: 0;
+        transform: translateY(8px);
+        pointer-events: none;
+        transition: opacity 160ms ease, transform 160ms ease;
+      }
+
+      #status.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      #status.error {
+        background: rgba(125, 46, 46, 0.96);
+      }
+
+      .shell {
+        position: relative;
+        }
+
+      .panel {
+        padding: 13px 14px 12px;
+      }
+
+      .panel[hidden] {
+        display: none;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 0;
+        list-style: none;
+      }
+
+      li + li {
+        margin-top: 6px;
+      }
+
+      .muted {
+        color: #555;
+        font-size: 12px;
+      }
+
+      .bookmark-link {
+        color: #f3e9d8;
+        text-decoration: none;
+        font-size: 13px;
+        line-height: 1.3;
+        font-weight: 600;
+      }
+
+      .bookmark-link:hover {
+        color: #d7bc8f;
+      }
+
+      .bookmark-head {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+        justify-content: space-between;
+      }
+
+      .bookmark-main {
+        min-width: 0;
+        flex: 1 1 auto;
+      }
+
+      .bookmark-actions {
+        display: flex;
+        gap: 5px;
+        flex: 0 0 auto;
+      }
+
+      .action-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        font-size: 10px;
+      }
+
+      .action-button svg {
+        width: 13px;
+        height: 13px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .action-button:disabled,
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.45;
+        background: linear-gradient(180deg, #5b5246, #474036);
+        color: #a39784;
+      }
+
+      .tag-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 5px;
+      }
+
+      .tag-pill {
+        display: inline-block;
+        border: 1px solid rgba(215, 195, 165, 0.12);
+        border-radius: 999px;
+        background: rgba(77, 68, 58, 0.92);
+        padding: 1px 7px;
+        font-size: 10px;
+        line-height: 1.45;
+        text-transform: lowercase;
+        letter-spacing: 0.03em;
+        color: #d9ccb8;
+        cursor: pointer;
+      }
+
+      .tag-pill:hover {
+        background: rgba(93, 82, 69, 0.96);
+      }
+
+      .tag-pill.active {
+        background: rgba(185, 154, 104, 0.96);
+        color: #211a13;
+      }
+
+      .toolbar {
+        padding: 14px 16px 2px;
+      }
+
+      .search-row {
+        margin-top: 10px;
+      }
+
+      .section-title {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #aa9b85;
+      }
+
+      .section-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .section-button {
+        padding: 5px 10px;
+        font-size: 10px;
+      }
+
+      .subtle-button {
+        background: rgba(74, 67, 58, 0.92);
+        color: #ddd1be;
+      }
+
+      .filter-label {
+        font-size: 11px;
+        color: #b8aa93;
+      }
+
+      .empty {
+        font-size: 12px;
+        color: #b8aa93;
+        padding: 10px 0;
+      }
+
+      .bookmark-item {
+        padding: 8px 0 9px;
+        border-bottom: 1px solid rgba(215, 195, 165, 0.08);
+      }
+
+      .bookmark-item.sortable {
+        cursor: grab;
+      }
+
+      .bookmark-item.dragging {
+        opacity: 0.45;
+      }
+
+      .bookmark-item:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+      }
+
+      .edit-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+
+      .edit-title {
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #aa9b85;
+      }
+
+      .edit-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .form-stack {
+        display: grid;
+        gap: 10px;
+      }
+
+      .field-group {
+        display: grid;
+        gap: 6px;
+      }
+
+      .field-label {
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #aa9b85;
+      }
+
+      .field-hint {
+        font-size: 11px;
+        color: #b8aa93;
+      }
+
+      .tag-input-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <div class="hero"></div>
+
+      <div class="toolbar">
+        <div class="row">
+          <select id="source_select"></select>
+          <button id="refresh_button">更新</button>
+          <button id="add_tab_button">Add Tab</button>
+        </div>
+        <div class="search-row">
+          <input id="search_input" type="search" placeholder="Search bookmarks">
+        </div>
+      </div>
+
+      <div id="list_view" class="panel">
+        <div class="section-title">
+          <span id="bookmark_count"></span>
+          <div class="section-actions">
+            <span id="active_tag_label" class="filter-label" hidden></span>
+            <button id="export_button" class="section-button" hidden>Export</button>
+            <button id="start_sort_button" class="section-button" hidden>Sort</button>
+            <button id="save_sort_button" class="section-button" hidden>Save order</button>
+            <button id="cancel_sort_button" class="section-button subtle-button" hidden>Cancel</button>
+            <button id="edit_title_button" class="section-button" hidden>Edit</button>
+          </div>
+        </div>
+        <ul id="bookmarks_list"></ul>
+      </div>
+
+      <div id="edit_view" class="panel" hidden>
+        <div class="edit-toolbar">
+          <button id="back_to_list_button" class="subtle-button">Back</button>
+          <span class="edit-title">Edit Bookmark</span>
+          <div class="edit-actions">
+            <button id="save_bookmark_button">Save</button>
+          </div>
+        </div>
+
+        <div class="form-stack">
+          <div class="field-group">
+            <label class="field-label" for="edit_target_source_select">File</label>
+            <select id="edit_target_source_select"></select>
+            <span id="edit_target_source_hint" class="field-hint"></span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="edit_bookmark_title">Title</label>
+            <input id="edit_bookmark_title" type="text" maxlength="240">
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="edit_bookmark_url">URL</label>
+            <input id="edit_bookmark_url" type="url" maxlength="2048">
+          </div>
+
+          <div class="field-group">
+            <span class="field-label">Tags</span>
+            <div class="tag-input-grid">
+              <input id="edit_bookmark_tag_1" type="text" maxlength="40" placeholder="Tag 1">
+              <input id="edit_bookmark_tag_2" type="text" maxlength="40" placeholder="Tag 2">
+              <input id="edit_bookmark_tag_3" type="text" maxlength="40" placeholder="Tag 3">
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="edit_bookmark_note">Note</label>
+            <textarea id="edit_bookmark_note"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div id="export_view" class="panel" hidden>
+        <div class="edit-toolbar">
+          <button id="back_from_export_button" class="subtle-button">Back</button>
+          <span class="edit-title">Export To GitHub</span>
+          <div class="edit-actions">
+            <button id="save_export_button">Export</button>
+          </div>
+        </div>
+
+        <div class="form-stack">
+          <div class="field-group">
+            <label class="field-label" for="export_target_source_select">GitHub Target</label>
+            <select id="export_target_source_select"></select>
+            <span id="export_target_source_hint" class="field-hint"></span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="export_file_name">New File Name</label>
+            <input id="export_file_name" type="text" maxlength="120" placeholder="work.json">
+            <span class="field-hint">Created as a new file under <code>bookmarks/</code>.</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="status"></div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+  </html>

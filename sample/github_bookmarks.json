@@ -1,0 +1,32 @@
+{
+  "format": "portable-bookmark-store",
+  "version": 1,
+  "encoding": "plain",
+  "title": "github sample bookmarks",
+  "items": [
+    {
+      "id": "gh-01",
+      "title": "TypeScript Handbook",
+      "url": "https://www.typescriptlang.org/docs/",
+      "tags": [
+        "dev",
+        "typescript"
+      ],
+      "note": "Reference for typed extension code.",
+      "created_at": "2026-04-26T12:00:00+09:00",
+      "updated_at": "2026-04-26T12:00:00+09:00"
+    },
+    {
+      "id": "gh-02",
+      "title": "Chrome Extensions Docs",
+      "url": "https://developer.chrome.com/docs/extensions",
+      "tags": [
+        "chrome",
+        "docs"
+      ],
+      "note": "Manifest and API reference.",
+      "created_at": "2026-04-26T12:05:00+09:00",
+      "updated_at": "2026-04-26T12:05:00+09:00"
+    }
+  ]
+}

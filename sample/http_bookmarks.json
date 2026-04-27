@@ -1,0 +1,32 @@
+{
+  "format": "portable-bookmark-store",
+  "version": 1,
+  "encoding": "plain",
+  "title": "http sample bookmarks",
+  "items": [
+    {
+      "id": "http-01",
+      "title": "MDN Web Docs",
+      "url": "https://developer.mozilla.org/",
+      "tags": [
+        "docs",
+        "web"
+      ],
+      "note": "General browser API reference.",
+      "created_at": "2026-04-26T12:10:00+09:00",
+      "updated_at": "2026-04-26T12:10:00+09:00"
+    },
+    {
+      "id": "http-02",
+      "title": "JSON Placeholder Guide",
+      "url": "https://jsonplaceholder.typicode.com/",
+      "tags": [
+        "api",
+        "sample"
+      ],
+      "note": "Useful for quick HTTP fetch tests.",
+      "created_at": "2026-04-26T12:15:00+09:00",
+      "updated_at": "2026-04-26T12:15:00+09:00"
+    }
+  ]
+}

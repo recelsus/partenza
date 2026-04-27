@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>Partenza Options</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f4f4ef;
+        color: #1e1f1c;
+        max-width: 720px;
+      }
+
+      h1 {
+        margin-top: 0;
+      }
+
+      .row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      .inline-fields {
+        display: flex;
+        gap: 8px;
+      }
+
+      .inline-fields > * {
+        flex: 1 1 0;
+      }
+
+      button {
+        font: inherit;
+        border: 1px solid #1e1f1c;
+        background: #fffdf5;
+        padding: 8px 12px;
+        cursor: pointer;
+      }
+
+      input {
+        font: inherit;
+        border: 1px solid #1e1f1c;
+        background: #fffdf8;
+        padding: 8px;
+      }
+
+      input::placeholder {
+        color: #777;
+      }
+
+      .stack {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 16px;
+        border: 1px solid #1e1f1c;
+        background: #fffdf8;
+        padding: 12px;
+      }
+
+      .source-list {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      .source-item {
+        border: 1px solid #1e1f1c;
+        background: #fffdf8;
+        padding: 12px;
+      }
+
+      .source-item strong,
+      .source-item span {
+        display: block;
+      }
+
+      pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+        border: 1px solid #1e1f1c;
+        background: #fffdf8;
+        padding: 12px;
+      }
+
+      details {
+        margin-top: 20px;
+      }
+
+      summary {
+        cursor: pointer;
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Partenza Options</h1>
+
+    <div class="row">
+      <button id="refresh_button">Refresh State</button>
+    </div>
+
+    <div class="stack">
+      <strong>Register HTTP Static Source</strong>
+      <input id="http_source_url" type="url" placeholder="https://example.com/bookmarks.json">
+      <div class="row">
+        <button id="register_http_button">Register HTTP Source</button>
+      </div>
+    </div>
+
+    <div class="stack">
+      <strong>Register GitHub Plain Source</strong>
+      <div class="inline-fields">
+        <input id="github_owner" type="text" placeholder="Owner">
+        <input id="github_repo" type="text" placeholder="Repository">
+        <input id="github_branch" type="text" placeholder="main (auto, fallback to master)">
+      </div>
+      <input id="github_token" type="password" placeholder="Optional PAT for private repo">
+      <span>All bookmark JSON files inside <code>bookmarks/</code> are discovered automatically. Default add target is <code>bookmarks/bookmarks.json</code>.</span>
+      <div class="row">
+        <button id="register_github_button">Register GitHub Source</button>
+      </div>
+    </div>
+
+    <div>
+      <h2>Registered Sources</h2>
+      <div id="source_list" class="source-list"></div>
+    </div>
+
+    <details>
+      <summary>Local Cache State</summary>
+      <pre id="state_dump">Loading...</pre>
+    </details>
+
+    <script src="options.js"></script>
+  </body>
+  </html>
