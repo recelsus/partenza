@@ -21,7 +21,7 @@ async function handle_sync_like_response(response, source_id) {
 
   if (response.data.needs_template_creation) {
     const should_create = window.confirm(
-      `bookmarks/ directory has no bookmark file on branch ${response.data.resolved_branch}. Create bookmarks/bookmarks.json template?`
+      `bookmarks/ is not initialised on branch ${response.data.resolved_branch}. Create bookmarks/bookmarks.json now?`
     );
 
     if (!should_create) {
