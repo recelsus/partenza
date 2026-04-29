@@ -1,5 +1,8 @@
 import { GITHUB_BOOKMARKS_FILE_PATH } from "../lib/github_adapter_helpers.js";
-import { build_github_cache_id } from "../lib/github_source_unit.js";
+import {
+  build_github_repo_key,
+  build_scoped_github_source
+} from "../lib/github_source_model.js";
 import {
   create_empty_cache,
   create_source_id
@@ -60,9 +63,7 @@ export async function register_github_source(input) {
   const existing_sources = await source_repository.list_sources();
   const duplicate_repo = existing_sources.find((source) => {
     return source.type === "github"
-      && source.owner === base_source.owner
-      && source.repo === base_source.repo
-      && source.branch === base_source.branch;
+      && build_github_repo_key(source) === build_github_repo_key(base_source);
   });
 
   if (duplicate_repo) {
@@ -82,11 +83,7 @@ export async function register_github_source(input) {
   await source_repository.save_source(next_source);
 
   for (const path of discovered_paths) {
-    await cache_repository.save_cache(create_empty_cache({
-      ...next_source,
-      source_id: build_github_cache_id(next_source.source_id, path),
-      path
-    }));
+    await cache_repository.save_cache(create_empty_cache(build_scoped_github_source(next_source, path)));
   }
 
   if (discovered.files.length === 0) {

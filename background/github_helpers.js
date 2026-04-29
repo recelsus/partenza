@@ -1,14 +1,9 @@
-import { create_source_snapshot } from "../lib/storage_repositories.js";
-import { adapters, cache_repository } from "./context.js";
+import { create_plain_bookmark_document } from "../lib/bookmark_document.js";
+import { adapters } from "./context.js";
+import { save_source_cache } from "./cache_save_service.js";
 
 export function create_plain_document(title, items) {
-  return {
-    format: "portable-bookmark-store",
-    version: 1,
-    encoding: "plain",
-    title,
-    items
-  };
+  return create_plain_bookmark_document(title, items);
 }
 
 export function get_document_title_from_cache(source, cache) {
@@ -16,21 +11,14 @@ export function get_document_title_from_cache(source, cache) {
 }
 
 export async function save_github_cache(source, cache, items, title, revision, resolved_branch) {
-  await cache_repository.save_cache({
-    ...cache,
-    items_cache: items,
-    last_synced_at: new Date().toISOString(),
-    last_remote_revision: revision,
+  await save_source_cache(source, {
+    cache,
+    items,
+    title,
+    revision,
+    resolved_branch,
     dirty: false,
-    last_error: null,
-    source_snapshot: create_source_snapshot(
-      {
-        ...source,
-        branch: resolved_branch
-      },
-      title,
-      resolved_branch
-    )
+    last_error: null
   });
 }
 

@@ -1,11 +1,8 @@
 import {
   build_state,
-  cache_repository
 } from "./context.js";
-import {
-  save_github_cache
-} from "./github_helpers.js";
-import { write_github_document_with_retry } from "./github_write_service.js";
+import { save_dirty_local_cache } from "./cache_save_service.js";
+import { apply_github_document_change } from "./github_document_change_service.js";
 import {
   require_cache,
   require_writable_source
@@ -37,36 +34,17 @@ export async function update_bookmark(source_id, bookmark_id, updates) {
   const next_items = merge_bookmark_updates(target_cache.items_cache, bookmark_id, updates, updated_at);
 
   if (source.type === "github") {
-    const committed_title = target_cache.source_snapshot?.document_title || source.source_name;
-    const write_result = await write_github_document_with_retry(
-      source,
-      committed_title,
-      next_items,
-      target_cache.last_remote_revision,
-      `Update bookmark: ${updates.title || bookmark_id}`,
-      (latest_remote) => ({
-        title: latest_remote.title || committed_title,
-        items: merge_bookmark_updates(latest_remote.items, bookmark_id, updates, updated_at)
-      })
-    );
-
-    await save_github_cache(
+    await apply_github_document_change(
       source,
       target_cache,
-      write_result.items,
-      write_result.title,
-      write_result.revision,
-      write_result.resolved_branch
+      `Update bookmark: ${updates.title || bookmark_id}`,
+      (document) => ({
+        title: document.title,
+        items: merge_bookmark_updates(document.items, bookmark_id, updates, updated_at)
+      })
     );
   } else {
-    await cache_repository.save_cache({
-      ...target_cache,
-      items_cache: next_items,
-      last_synced_at: new Date().toISOString(),
-      last_remote_revision: "local-edit",
-      dirty: true,
-      last_error: null
-    });
+    await save_dirty_local_cache(target_cache, next_items, "local-edit");
   }
 
   return {

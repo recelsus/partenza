@@ -1,8 +1,8 @@
 import {
   build_state,
 } from "./context.js";
-import { save_github_cache } from "./github_helpers.js";
-import { write_github_document_with_retry } from "./github_write_service.js";
+import { save_dirty_local_cache } from "./cache_save_service.js";
+import { apply_github_document_change } from "./github_document_change_service.js";
 import {
   require_cache,
   require_writable_source
@@ -19,36 +19,17 @@ export async function delete_bookmark(source_id, bookmark_id) {
   const next_items = target_cache.items_cache.filter((item) => item.id !== bookmark_id);
 
   if (source.type === "github") {
-    const committed_title = target_cache.source_snapshot?.document_title || source.source_name;
-    const write_result = await write_github_document_with_retry(
-      source,
-      committed_title,
-      next_items,
-      target_cache.last_remote_revision,
-      `Delete bookmark: ${bookmark_id}`,
-      (latest_remote) => ({
-        title: latest_remote.title || committed_title,
-        items: latest_remote.items.filter((item) => item.id !== bookmark_id)
-      })
-    );
-
-    await save_github_cache(
+    await apply_github_document_change(
       source,
       target_cache,
-      write_result.items,
-      write_result.title,
-      write_result.revision,
-      write_result.resolved_branch
+      `Delete bookmark: ${bookmark_id}`,
+      (document) => ({
+        title: document.title,
+        items: document.items.filter((item) => item.id !== bookmark_id)
+      })
     );
   } else {
-    await cache_repository.save_cache({
-      ...target_cache,
-      items_cache: next_items,
-      last_synced_at: new Date().toISOString(),
-      last_remote_revision: "local-delete",
-      dirty: true,
-      last_error: null
-    });
+    await save_dirty_local_cache(target_cache, next_items, "local-delete");
   }
 
   return {

@@ -1,8 +1,7 @@
 import {
   build_state,
 } from "./context.js";
-import { save_github_cache } from "./github_helpers.js";
-import { write_github_document_with_retry } from "./github_write_service.js";
+import { apply_github_document_change } from "./github_document_change_service.js";
 import {
   require_cache,
   require_writable_github_source
@@ -22,25 +21,14 @@ export async function update_document_title(source_id, next_title) {
     throw new Error("Document title is required");
   }
 
-  const write_result = await write_github_document_with_retry(
-    source,
-    trimmed_title,
-    target_cache.items_cache,
-    target_cache.last_remote_revision,
-    `Update bookmark title: ${trimmed_title}`,
-    (latest_remote) => ({
-      title: trimmed_title,
-      items: latest_remote.items
-    })
-  );
-
-  await save_github_cache(
+  await apply_github_document_change(
     source,
     target_cache,
-    write_result.items,
-    trimmed_title,
-    write_result.revision,
-    write_result.resolved_branch
+    `Update bookmark title: ${trimmed_title}`,
+    (document) => ({
+      title: trimmed_title,
+      items: document.items
+    })
   );
 
   return {
