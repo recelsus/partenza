@@ -5,7 +5,8 @@
   "description": "Bookmark source and cache extension for GitHub and HTTP static files.",
   "permissions": [
     "storage",
-    "tabs"
+    "tabs",
+    "sidePanel"
   ],
   "host_permissions": [
     "<all_urls>"
@@ -17,6 +18,9 @@
   "action": {
     "default_title": "Partenza Bookmark",
     "default_popup": "popup.html"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
   },
   "commands": {
     "_execute_action": {

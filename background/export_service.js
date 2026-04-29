@@ -1,8 +1,7 @@
-import { GITHUB_BOOKMARKS_DIRECTORY } from "../lib/github_adapter.js";
 import {
   create_source_snapshot,
-  create_source_id
 } from "../lib/storage_repositories.js";
+import { build_github_cache_id } from "../lib/github_source_unit.js";
 import {
   adapters,
   build_state,
@@ -10,21 +9,10 @@ import {
   source_repository
 } from "./context.js";
 import { create_plain_document } from "./github_helpers.js";
-
-function build_github_export_path(file_name) {
-  const trimmed_name = typeof file_name === "string" ? file_name.trim() : "";
-
-  if (trimmed_name.length === 0) {
-    throw new Error("Export file name is required");
-  }
-
-  if (trimmed_name.includes("/") || trimmed_name.includes("\\")) {
-    throw new Error("Export file name must not include directory separators");
-  }
-
-  const final_name = trimmed_name.endsWith(".json") ? trimmed_name : `${trimmed_name}.json`;
-  return `${GITHUB_BOOKMARKS_DIRECTORY}/${final_name}`;
-}
+import {
+  assert_writable_github_target,
+  build_github_export_path
+} from "./export_helpers.js";
 
 export async function export_http_source_to_github(source_id, target_source_id, file_name) {
   const source = await source_repository.get_source(source_id);
@@ -49,32 +37,17 @@ export async function export_http_source_to_github(source_id, target_source_id, 
     throw new Error("Target GitHub source was not found");
   }
 
-  if (
-    github_base_source.type !== "github"
-    || !github_base_source.writable
-    || typeof github_base_source.token !== "string"
-    || github_base_source.token.trim().length === 0
-  ) {
-    throw new Error("Target source must be a writable GitHub source with PAT");
-  }
+  assert_writable_github_target(github_base_source);
 
   const export_path = build_github_export_path(file_name);
   const export_source = {
     ...github_base_source,
-    source_id: create_source_id("github"),
     path: export_path
   };
 
-  const existing_sources = await source_repository.list_sources();
-  const local_duplicate = existing_sources.find((entry) => {
-    return entry.type === "github"
-      && entry.owner === export_source.owner
-      && entry.repo === export_source.repo
-      && entry.branch === export_source.branch
-      && entry.path === export_source.path;
-  });
+  const file_paths = Array.isArray(github_base_source.file_paths) ? github_base_source.file_paths : [];
 
-  if (local_duplicate) {
+  if (file_paths.includes(export_path)) {
     throw new Error("A GitHub bookmark file with the same name is already registered");
   }
 
@@ -93,9 +66,12 @@ export async function export_http_source_to_github(source_id, target_source_id, 
     `Export bookmarks: ${document_title}`
   );
 
-  await source_repository.save_source(export_source);
+  await source_repository.save_source({
+    ...github_base_source,
+    file_paths: [...file_paths, export_path]
+  });
   await cache_repository.save_cache({
-    source_id: export_source.source_id,
+    source_id: build_github_cache_id(github_base_source.source_id, export_path),
     last_synced_at: new Date().toISOString(),
     last_remote_revision: write_result.revision,
     dirty: false,
@@ -104,7 +80,8 @@ export async function export_http_source_to_github(source_id, target_source_id, 
     source_snapshot: create_source_snapshot(
       {
         ...export_source,
-        branch: write_result.resolved_branch
+        branch: write_result.resolved_branch,
+        source_id: build_github_cache_id(github_base_source.source_id, export_path)
       },
       document_title,
       write_result.resolved_branch
@@ -113,6 +90,6 @@ export async function export_http_source_to_github(source_id, target_source_id, 
 
   return {
     state: await build_state(),
-    created_source_id: export_source.source_id
+    created_source_id: build_github_cache_id(github_base_source.source_id, export_path)
   };
 }

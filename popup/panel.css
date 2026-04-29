@@ -1,0 +1,370 @@
+body {
+  font-family: "Avenir Next", "Helvetica Neue", sans-serif;
+  margin: 0;
+  padding: 14px;
+  background:
+    radial-gradient(circle at top left, #3b3834 0%, #26231f 38%, #171513 100%);
+  color: #ece4d7;
+}
+
+body.popup-window {
+  width: 380px;
+}
+
+body.side-panel-window {
+  min-width: 0;
+}
+
+.shell {
+  position: relative;
+  border: 1px solid rgba(215, 195, 165, 0.12);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(39, 35, 31, 0.96), rgba(28, 24, 21, 0.96));
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(4px);
+  overflow: hidden;
+}
+
+.shell.popup-shell {
+  min-height: 520px;
+}
+
+.shell.side-panel-shell {
+  min-height: calc(100vh - 28px);
+}
+
+.hero {
+  padding: 10px 0 0;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.row.tight {
+  gap: 6px;
+}
+
+button,
+select {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #d7bf95, #b99a68);
+  padding: 7px 11px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 11px;
+  color: #241d15;
+  box-shadow: inset 0 0 0 1px rgba(255, 241, 219, 0.1);
+}
+
+button:hover {
+  background: linear-gradient(180deg, #dcc6a0, #c29f71);
+}
+
+#refresh_button {
+  font-size: 18px;
+  line-height: 1;
+}
+
+select {
+  flex: 1 1 auto;
+  border: 1px solid rgba(215, 195, 165, 0.16);
+  border-radius: 14px;
+  background: rgba(52, 46, 41, 0.92);
+  padding: 7px 9px;
+  color: #ebe1d2;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+input[type="search"] {
+  width: 100%;
+  border: 1px solid rgba(215, 195, 165, 0.16);
+  border-radius: 14px;
+  background: rgba(52, 46, 41, 0.92);
+  padding: 8px 11px;
+  color: #ebe1d2;
+  box-sizing: border-box;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+input[type="text"],
+input[type="url"],
+textarea {
+  width: 100%;
+  border: 1px solid rgba(215, 195, 165, 0.16);
+  border-radius: 14px;
+  background: rgba(52, 46, 41, 0.92);
+  padding: 9px 11px;
+  color: #ebe1d2;
+  box-sizing: border-box;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(235, 225, 210, 0.45);
+}
+
+textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+
+#status {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.3;
+  color: #fff7ec;
+  background: rgba(188, 148, 92, 0.96);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+#status.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#status.error {
+  background: rgba(125, 46, 46, 0.96);
+}
+
+.panel {
+  padding: 13px 14px 12px;
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+ul {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+li + li {
+  margin-top: 6px;
+}
+
+.muted {
+  color: #555;
+  font-size: 12px;
+}
+
+.bookmark-link {
+  color: #f3e9d8;
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+.bookmark-link:hover {
+  color: #d7bc8f;
+}
+
+.bookmark-head {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.bookmark-main {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.bookmark-actions {
+  display: flex;
+  gap: 5px;
+  flex: 0 0 auto;
+}
+
+.action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 10px;
+}
+
+.action-button svg {
+  width: 13px;
+  height: 13px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.action-button:disabled,
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  background: linear-gradient(180deg, #5b5246, #474036);
+  color: #a39784;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.tag-pill {
+  display: inline-block;
+  border: 1px solid rgba(215, 195, 165, 0.12);
+  border-radius: 999px;
+  background: rgba(77, 68, 58, 0.92);
+  padding: 1px 7px;
+  font-size: 10px;
+  line-height: 1.45;
+  text-transform: lowercase;
+  letter-spacing: 0.03em;
+  color: #d9ccb8;
+  cursor: pointer;
+}
+
+.tag-pill:hover {
+  background: rgba(93, 82, 69, 0.96);
+}
+
+.tag-pill.active {
+  background: rgba(185, 154, 104, 0.96);
+  color: #211a13;
+}
+
+.toolbar {
+  padding: 14px 16px 2px;
+}
+
+.search-row {
+  margin-top: 10px;
+}
+
+.section-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #aa9b85;
+}
+
+.section-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-button {
+  padding: 5px 10px;
+  font-size: 10px;
+}
+
+.subtle-button {
+  background: rgba(74, 67, 58, 0.92);
+  color: #ddd1be;
+}
+
+.filter-label {
+  font-size: 11px;
+  color: #b8aa93;
+}
+
+.empty {
+  font-size: 12px;
+  color: #b8aa93;
+  padding: 10px 0;
+}
+
+.bookmark-item {
+  padding: 8px 0 9px;
+  border-bottom: 1px solid rgba(215, 195, 165, 0.08);
+}
+
+.bookmark-item.sortable {
+  cursor: grab;
+}
+
+.bookmark-item.dragging {
+  opacity: 0.45;
+}
+
+.bookmark-item:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.edit-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.edit-title {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #aa9b85;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.form-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.field-group {
+  display: grid;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #aa9b85;
+}
+
+.field-hint {
+  font-size: 11px;
+  color: #b8aa93;
+}
+
+.tag-input-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}

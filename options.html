@@ -94,6 +94,33 @@
         margin-bottom: 8px;
         font-weight: 600;
       }
+
+      #status {
+        position: fixed;
+        left: 20px;
+        right: 20px;
+        bottom: 20px;
+        border-radius: 14px;
+        padding: 10px 12px;
+        font-size: 12px;
+        line-height: 1.3;
+        color: #fffdf6;
+        background: rgba(30, 31, 28, 0.94);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+        opacity: 0;
+        transform: translateY(8px);
+        pointer-events: none;
+        transition: opacity 160ms ease, transform 160ms ease;
+      }
+
+      #status.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      #status.error {
+        background: rgba(125, 46, 46, 0.96);
+      }
     </style>
   </head>
   <body>
@@ -101,6 +128,21 @@
 
     <div class="row">
       <button id="refresh_button">Refresh State</button>
+    </div>
+
+    <div class="stack">
+      <strong>Display Mode</strong>
+      <div class="row">
+        <label>
+          <input id="ui_mode_popup" type="radio" name="ui_mode" value="popup">
+          Popup
+        </label>
+        <label>
+          <input id="ui_mode_side_panel" type="radio" name="ui_mode" value="side_panel">
+          Side Panel
+        </label>
+      </div>
+      <span>Popup keeps the toolbar popup. Side Panel opens the same UI from the browser side panel.</span>
     </div>
 
     <div class="stack">
@@ -135,6 +177,8 @@
       <pre id="state_dump">Loading...</pre>
     </details>
 
-    <script src="options.js"></script>
+    <div id="status"></div>
+
+    <script type="module" src="options/main.js"></script>
   </body>
   </html>

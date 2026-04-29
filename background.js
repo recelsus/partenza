@@ -1,5 +1,6 @@
 import { handle_add_current_tab_shortcut } from "./background/add_tab_service.js";
 import { handle_message } from "./background/message_router.js";
+import { initialise_ui_mode } from "./background/ui_mode_service.js";
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   handle_message(message).then(sendResponse).catch((error) => {
@@ -18,3 +19,13 @@ chrome.commands.onCommand.addListener((command) => {
     handle_add_current_tab_shortcut();
   }
 });
+
+chrome.runtime.onInstalled.addListener(() => {
+  initialise_ui_mode().catch(console.error);
+});
+
+chrome.runtime.onStartup.addListener(() => {
+  initialise_ui_mode().catch(console.error);
+});
+
+initialise_ui_mode().catch(console.error);

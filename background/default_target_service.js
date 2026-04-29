@@ -1,20 +1,21 @@
-import { GITHUB_BOOKMARKS_FILE_PATH } from "../lib/github_adapter.js";
-import { create_source_id } from "../lib/storage_repositories.js";
+import { GITHUB_BOOKMARKS_FILE_PATH } from "../lib/github_adapter_helpers.js";
 import { source_repository } from "./context.js";
+import { build_scoped_github_source } from "./source_group_service.js";
 
 export async function find_default_add_target_source() {
   const sources = await source_repository.list_sources();
   const default_source = sources.find((source) => {
     return source.type === "github"
       && source.writable
-      && source.path === GITHUB_BOOKMARKS_FILE_PATH
+      && Array.isArray(source.file_paths)
+      && source.file_paths.includes(GITHUB_BOOKMARKS_FILE_PATH)
       && typeof source.token === "string"
       && source.token.trim().length > 0;
   });
 
   if (default_source) {
     return {
-      source: default_source,
+      source: build_scoped_github_source(default_source, GITHUB_BOOKMARKS_FILE_PATH),
       should_register_source: false
     };
   }
@@ -31,11 +32,7 @@ export async function find_default_add_target_source() {
   }
 
   return {
-    source: {
-      ...fallback_source,
-      source_id: create_source_id("github"),
-      path: GITHUB_BOOKMARKS_FILE_PATH
-    },
+    source: build_scoped_github_source(fallback_source, GITHUB_BOOKMARKS_FILE_PATH),
     should_register_source: true
   };
 }

@@ -1,3 +1,5 @@
+import { parse_github_cache_id } from "../lib/github_source_unit.js";
+
 export function get_selected_source_id() {
   return document.getElementById("source_select").value;
 }
@@ -31,7 +33,23 @@ export function get_source_cache(state, source_id) {
 }
 
 export function get_source(state, source_id) {
-  return state.sources.find((entry) => entry.source_id === source_id) ?? null;
+  const cache_id = parse_github_cache_id(source_id);
+
+  if (!cache_id) {
+    return state.sources.find((entry) => entry.source_id === source_id) ?? null;
+  }
+
+  const source = state.sources.find((entry) => entry.source_id === cache_id.source_id) ?? null;
+
+  if (!source) {
+    return null;
+  }
+
+  return {
+    ...source,
+    source_id,
+    path: cache_id.file_path
+  };
 }
 
 export function get_source_display_name(state, source_id) {

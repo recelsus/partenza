@@ -1,32 +1,24 @@
 import {
   GITHUB_BOOKMARKS_FILE_PATH
-} from "../lib/github_adapter.js";
+} from "../lib/github_adapter_helpers.js";
 import {
   create_empty_cache,
   create_source_snapshot
 } from "../lib/storage_repositories.js";
 import {
-  adapters,
   build_state,
   cache_repository,
   source_repository
 } from "./context.js";
 import { find_default_add_target_source } from "./default_target_service.js";
-import { create_plain_document } from "./github_helpers.js";
-
-function create_tab_bookmark(tab) {
-  const now = new Date().toISOString();
-
-  return {
-    id: `tab-${Date.now()}`,
-    title: tab.title || tab.url || "Untitled tab",
-    url: tab.url || "",
-    tags: [],
-    note: "Added from the active browser tab.",
-    created_at: now,
-    updated_at: now
-  };
-}
+import { save_github_cache } from "./github_helpers.js";
+import {
+  require_cache,
+  require_source,
+  get_root_source_id
+} from "./source_context_service.js";
+import { create_tab_bookmark } from "./tab_bookmark_service.js";
+import { write_github_document_with_retry } from "./github_write_service.js";
 
 export async function add_current_tab(source_id) {
   const default_target = source_id === "all"
@@ -34,7 +26,7 @@ export async function add_current_tab(source_id) {
     : null;
   const source = source_id === "all"
     ? default_target?.source ?? null
-    : await source_repository.get_source(source_id);
+    : await require_source(source_id, "Target source was not found");
 
   if (!source) {
     throw new Error("Target source was not found");
@@ -50,7 +42,9 @@ export async function add_current_tab(source_id) {
     throw new Error("Active tab is unavailable");
   }
 
-  const target_cache = await cache_repository.get_cache(source.source_id);
+  const target_cache = source_id === "all" && default_target?.should_register_source
+    ? await cache_repository.get_cache(source.source_id)
+    : await require_cache(source.source_id, "Target source cache was not found");
   const fallback_cache = source_id === "all" && default_target?.should_register_source
     ? create_empty_cache(source)
     : null;
@@ -66,56 +60,42 @@ export async function add_current_tab(source_id) {
     || (source.path === GITHUB_BOOKMARKS_FILE_PATH ? "default bookmarks" : source.source_name);
 
   if (source.type === "github") {
-    let write_result;
-    let committed_items = next_items;
-
-    try {
-      write_result = await adapters.github.write_document(
-        source,
-        create_plain_document(next_document_title, committed_items),
-        writable_cache.last_remote_revision,
-        `Add bookmark: ${next_item.title}`
-      );
-    } catch (error) {
-      if (!(error instanceof Error) || !error.message.includes("409")) {
-        throw error;
-      }
-
-      const latest_remote = await adapters.github.read(source);
-
-      if (latest_remote.template_available) {
-        throw new Error("GitHub bookmark file is missing");
-      }
-
-      committed_items = [...latest_remote.document.items, next_item];
-      write_result = await adapters.github.write_document(
-        source,
-        create_plain_document(latest_remote.document.title || next_document_title, committed_items),
-        latest_remote.revision,
-        `Add bookmark: ${next_item.title}`
-      );
-    }
+    const write_result = await write_github_document_with_retry(
+      source,
+      next_document_title,
+      next_items,
+      writable_cache.last_remote_revision,
+      `Add bookmark: ${next_item.title}`,
+      (latest_remote) => ({
+        title: latest_remote.title || next_document_title,
+        items: [...latest_remote.items, next_item]
+      })
+    );
 
     if (source_id === "all" && default_target?.should_register_source) {
-      await source_repository.save_source(source);
+      const root_source_id = get_root_source_id(source.source_id);
+      const root_source = await source_repository.get_source(root_source_id);
+
+      if (root_source) {
+        const file_paths = Array.isArray(root_source.file_paths) ? root_source.file_paths : [];
+
+        if (!file_paths.includes(source.path)) {
+          await source_repository.save_source({
+            ...root_source,
+            file_paths: [...file_paths, source.path]
+          });
+        }
+      }
     }
 
-    await cache_repository.save_cache({
-      ...writable_cache,
-      items_cache: committed_items,
-      last_synced_at: new Date().toISOString(),
-      last_remote_revision: write_result.revision,
-      dirty: false,
-      last_error: null,
-      source_snapshot: create_source_snapshot(
-        {
-          ...source,
-          branch: write_result.resolved_branch
-        },
-        next_document_title,
-        write_result.resolved_branch
-      )
-    });
+    await save_github_cache(
+      source,
+      writable_cache,
+      write_result.items,
+      write_result.title,
+      write_result.revision,
+      write_result.resolved_branch
+    );
   } else {
     await cache_repository.save_cache({
       ...writable_cache,
