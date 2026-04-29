@@ -103,6 +103,13 @@ function render_github_group(state, sources, handlers, source_list) {
   });
   button_row.appendChild(sync_button);
 
+  const create_file_button = document.createElement("button");
+  create_file_button.textContent = "New File";
+  create_file_button.addEventListener("click", () => {
+    handlers.on_create_file(primary_source.source_id);
+  });
+  button_row.appendChild(create_file_button);
+
   const delete_button = document.createElement("button");
   delete_button.textContent = "Delete";
   delete_button.addEventListener("click", () => {

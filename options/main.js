@@ -6,8 +6,10 @@ import {
   reset_http_form
 } from "./forms.js";
 import {
+  create_github_file,
   delete_source,
   handle_sync_like_response,
+  save_theme_mode,
   save_ui_mode,
   sync_source
 } from "./actions.js";
@@ -24,6 +26,12 @@ function create_render_state() {
     on_delete: (source_id, display_name) => {
       delete_source(source_id, display_name, render).catch((error) => {
         document.getElementById("state_dump").textContent = String(error);
+      });
+    },
+    on_create_file: (source_id) => {
+      create_github_file(source_id, render).catch((error) => {
+        document.getElementById("state_dump").textContent = String(error);
+        set_status(String(error), true);
       });
     }
   });
@@ -79,6 +87,33 @@ document.getElementById("ui_mode_popup").addEventListener("change", (event) => {
 document.getElementById("ui_mode_side_panel").addEventListener("change", (event) => {
   if (event.target.checked) {
     save_ui_mode("side_panel", render).catch((error) => {
+      document.getElementById("state_dump").textContent = String(error);
+      set_status(String(error), true);
+    });
+  }
+});
+
+document.getElementById("theme_mode_auto").addEventListener("change", (event) => {
+  if (event.target.checked) {
+    save_theme_mode("auto", render).catch((error) => {
+      document.getElementById("state_dump").textContent = String(error);
+      set_status(String(error), true);
+    });
+  }
+});
+
+document.getElementById("theme_mode_light").addEventListener("change", (event) => {
+  if (event.target.checked) {
+    save_theme_mode("light", render).catch((error) => {
+      document.getElementById("state_dump").textContent = String(error);
+      set_status(String(error), true);
+    });
+  }
+});
+
+document.getElementById("theme_mode_dark").addEventListener("change", (event) => {
+  if (event.target.checked) {
+    save_theme_mode("dark", render).catch((error) => {
       document.getElementById("state_dump").textContent = String(error);
       set_status(String(error), true);
     });

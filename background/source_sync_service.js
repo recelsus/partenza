@@ -4,6 +4,8 @@ import {
   source_repository
 } from "./context.js";
 import { GITHUB_BOOKMARKS_FILE_PATH } from "../lib/github_adapter_helpers.js";
+import { build_github_export_path } from "./export_helpers.js";
+import { create_plain_document } from "./github_helpers.js";
 import {
   build_scoped_github_source,
   list_github_group_sources
@@ -125,5 +127,69 @@ export async function create_github_template(source_id) {
     created_source_id: scoped_source.source_id,
     resolved_branch: result.resolved_branch,
     item_count: result.document.items.length
+  };
+}
+
+function derive_document_title(file_name, requested_title = "") {
+  const trimmed_title = typeof requested_title === "string" ? requested_title.trim() : "";
+
+  if (trimmed_title.length > 0) {
+    return trimmed_title;
+  }
+
+  const without_extension = file_name.replace(/\.json$/i, "");
+  return without_extension.length > 0 ? without_extension : "new bookmarks";
+}
+
+export async function create_github_file(source_id, file_name, document_title = "") {
+  const source = await source_repository.get_source(source_id);
+
+  if (!source) {
+    throw new Error("Source was not found");
+  }
+
+  if (source.type !== "github" || !source.writable) {
+    throw new Error("File creation is only supported for writable GitHub sources");
+  }
+
+  const export_path = build_github_export_path(file_name);
+  const file_paths = Array.isArray(source.file_paths) ? source.file_paths : [];
+
+  if (file_paths.includes(export_path)) {
+    throw new Error("A bookmark file with the same name is already registered");
+  }
+
+  const scoped_source = build_scoped_github_source(source, export_path);
+  const inspection = await adapters.github.inspect_source(scoped_source);
+
+  if (inspection.status === "file_ready") {
+    throw new Error("A bookmark file with the same name already exists");
+  }
+
+  const next_title = derive_document_title(file_name, document_title);
+  const write_result = await adapters.github.write_document(
+    scoped_source,
+    create_plain_document(next_title, []),
+    null,
+    `Create bookmark file: ${export_path}`
+  );
+
+  await source_repository.save_source({
+    ...source,
+    file_paths: [...file_paths, export_path]
+  });
+
+  await save_synced_source_cache(
+    scoped_source,
+    [],
+    next_title,
+    write_result.revision,
+    write_result.resolved_branch
+  );
+
+  return {
+    state: await build_state(),
+    created_source_id: scoped_source.source_id,
+    resolved_branch: write_result.resolved_branch
   };
 }

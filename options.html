@@ -8,9 +8,30 @@
         font-family: sans-serif;
         margin: 0 auto;
         padding: 20px;
-        background: #f4f4ef;
-        color: #1e1f1c;
+        background: var(--page-bg);
+        color: var(--page-fg);
         max-width: 720px;
+        transition: background 160ms ease, color 160ms ease;
+      }
+
+      :root[data-theme="light"] {
+        --page-bg: #f4f4ef;
+        --page-fg: #1e1f1c;
+        --surface-bg: #fffdf8;
+        --surface-border: #1e1f1c;
+        --button-bg: #fffdf5;
+        --input-bg: #fffdf8;
+        --input-placeholder: #777;
+      }
+
+      :root[data-theme="dark"] {
+        --page-bg: #0f141c;
+        --page-fg: #e6edf7;
+        --surface-bg: #1a2230;
+        --surface-border: rgba(151, 174, 204, 0.22);
+        --button-bg: #2a3647;
+        --input-bg: #243041;
+        --input-placeholder: #93a6bf;
       }
 
       h1 {
@@ -34,29 +55,31 @@
 
       button {
         font: inherit;
-        border: 1px solid #1e1f1c;
-        background: #fffdf5;
+        border: 1px solid var(--surface-border);
+        background: var(--button-bg);
+        color: inherit;
         padding: 8px 12px;
         cursor: pointer;
       }
 
       input {
         font: inherit;
-        border: 1px solid #1e1f1c;
-        background: #fffdf8;
+        border: 1px solid var(--surface-border);
+        background: var(--input-bg);
+        color: inherit;
         padding: 8px;
       }
 
       input::placeholder {
-        color: #777;
+        color: var(--input-placeholder);
       }
 
       .stack {
         display: grid;
         gap: 8px;
         margin-bottom: 16px;
-        border: 1px solid #1e1f1c;
-        background: #fffdf8;
+        border: 1px solid var(--surface-border);
+        background: var(--surface-bg);
         padding: 12px;
       }
 
@@ -67,8 +90,8 @@
       }
 
       .source-item {
-        border: 1px solid #1e1f1c;
-        background: #fffdf8;
+        border: 1px solid var(--surface-border);
+        background: var(--surface-bg);
         padding: 12px;
       }
 
@@ -80,8 +103,8 @@
       pre {
         white-space: pre-wrap;
         word-break: break-word;
-        border: 1px solid #1e1f1c;
-        background: #fffdf8;
+        border: 1px solid var(--surface-border);
+        background: var(--surface-bg);
         padding: 12px;
       }
 
@@ -143,6 +166,25 @@
         </label>
       </div>
       <span>Popup keeps the toolbar popup. Side Panel opens the same UI from the browser side panel.</span>
+    </div>
+
+    <div class="stack">
+      <strong>Theme</strong>
+      <div class="row">
+        <label>
+          <input id="theme_mode_auto" type="radio" name="theme_mode" value="auto">
+          Auto
+        </label>
+        <label>
+          <input id="theme_mode_light" type="radio" name="theme_mode" value="light">
+          Light
+        </label>
+        <label>
+          <input id="theme_mode_dark" type="radio" name="theme_mode" value="dark">
+          Dark
+        </label>
+      </div>
+      <span>Auto follows the system appearance preference.</span>
     </div>
 
     <div class="stack">

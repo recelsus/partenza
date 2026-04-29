@@ -3,6 +3,7 @@ import { app_state } from "./state.js";
 import { set_loading_status, set_status } from "./status_bar.js";
 import { get_selected_source_id } from "./source_helpers.js";
 import { cancel_sort_mode } from "./sort_mode.js";
+import { apply_theme_mode } from "../ui/theme.js";
 import {
   render_bookmarks,
   render_sources,
@@ -23,6 +24,7 @@ export function create_view_controller(open_edit_view) {
       ? selected_source_id
       : (get_selected_source_id() || "all");
 
+    apply_theme_mode(state.settings?.theme_mode || "auto");
     render_sources(state, next_selected_source_id);
     render_bookmarks_view(state, open_edit_view, apply_state);
     update_add_tab_button(state);

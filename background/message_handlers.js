@@ -7,11 +7,13 @@ import { reorder_bookmarks } from "./reorder_service.js";
 import { add_current_tab } from "./add_tab_service.js";
 import { export_http_source_to_github } from "./export_service.js";
 import { save_ui_mode } from "./ui_mode_service.js";
+import { save_theme_mode } from "./theme_service.js";
 import {
   register_github_source,
   register_http_source
 } from "./source_registration_service.js";
 import {
+  create_github_file,
   create_github_template,
   sync_source
 } from "./source_sync_service.js";
@@ -21,10 +23,12 @@ export const MESSAGE_HANDLERS = {
   ping: async () => ({ pong: true }),
   get_view_state: async () => build_state(),
   save_ui_mode: async (message) => save_ui_mode(message.ui_mode),
+  save_theme_mode: async (message) => save_theme_mode(message.theme_mode),
   register_http_source: async (message) => register_http_source(message.url),
   register_github_source: async (message) => register_github_source(message),
   sync_source: async (message) => sync_source(message.source_id),
   create_github_template: async (message) => create_github_template(message.source_id),
+  create_github_file: async (message) => create_github_file(message.source_id, message.file_name, message.document_title),
   delete_source: async (message) => delete_source(message.source_id),
   add_current_tab: async (message) => add_current_tab(message.source_id),
   export_http_source_to_github: async (message) => {

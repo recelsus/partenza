@@ -1,8 +1,18 @@
+import { apply_theme_mode } from "../ui/theme.js";
+
 export function render_settings(settings) {
   const ui_mode = settings?.ui_mode === "side_panel" ? "side_panel" : "popup";
+  const theme_mode = settings?.theme_mode === "light" || settings?.theme_mode === "dark"
+    ? settings.theme_mode
+    : "auto";
 
   document.getElementById("ui_mode_popup").checked = ui_mode === "popup";
   document.getElementById("ui_mode_side_panel").checked = ui_mode === "side_panel";
+  document.getElementById("theme_mode_auto").checked = theme_mode === "auto";
+  document.getElementById("theme_mode_light").checked = theme_mode === "light";
+  document.getElementById("theme_mode_dark").checked = theme_mode === "dark";
+
+  apply_theme_mode(theme_mode);
 }
 
 export function reset_http_form() {

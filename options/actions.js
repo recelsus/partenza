@@ -92,3 +92,46 @@ export async function save_ui_mode(ui_mode, render_state) {
   await render_state();
   set_status("Display mode was updated");
 }
+
+export async function save_theme_mode(theme_mode, render_state) {
+  set_loading_status("Saving theme...");
+  const response = await send_message({
+    type: "save_theme_mode",
+    theme_mode
+  });
+
+  if (!response.ok) {
+    document.getElementById("state_dump").textContent = response.message;
+    await render_state();
+    set_status(response.message, true);
+    return;
+  }
+
+  await render_state();
+  set_status("Theme was updated");
+}
+
+export async function create_github_file(source_id, render_state) {
+  const file_name = window.prompt("New GitHub file name (without .json)", "new-bookmarks");
+
+  if (file_name === null) {
+    return;
+  }
+
+  set_loading_status("Creating GitHub file...");
+  const response = await send_message({
+    type: "create_github_file",
+    source_id,
+    file_name
+  });
+
+  if (!response.ok) {
+    document.getElementById("state_dump").textContent = response.message;
+    await render_state();
+    set_status(response.message, true);
+    return;
+  }
+
+  await render_state();
+  set_status("GitHub file was created");
+}
