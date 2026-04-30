@@ -1,36 +1,20 @@
 import {
-  GITHUB_BOOKMARKS_FILE_PATH
-} from "../lib/github_adapter_helpers.js";
-import {
-  create_empty_cache,
-  create_source_snapshot
-} from "../lib/storage_repositories.js";
-import {
   build_state,
-  cache_repository,
-  source_repository
 } from "./context.js";
-import { find_default_add_target_source } from "./default_target_service.js";
+import { save_source_cache } from "./cache_save_service.js";
 import { save_github_cache } from "./github_helpers.js";
 import {
-  require_cache,
-  require_source,
-  get_root_source_id
-} from "./source_context_service.js";
+  ensure_registered_github_file_path,
+  get_add_tab_document_title,
+  resolve_add_target_context
+} from "./add_tab_target_service.js";
 import { create_tab_bookmark } from "./tab_bookmark_service.js";
 import { write_github_document_with_retry } from "./github_write_service.js";
 
 export async function add_current_tab(source_id) {
-  const default_target = source_id === "all"
-    ? await find_default_add_target_source()
-    : null;
-  const source = source_id === "all"
-    ? default_target?.source ?? null
-    : await require_source(source_id, "Target source was not found");
-
-  if (!source) {
-    throw new Error("Target source was not found");
-  }
+  const target_context = await resolve_add_target_context(source_id);
+  const source = target_context.source;
+  const writable_cache = target_context.cache;
 
   if (!source.writable) {
     throw new Error("Selected source is read-only");
@@ -42,22 +26,9 @@ export async function add_current_tab(source_id) {
     throw new Error("Active tab is unavailable");
   }
 
-  const target_cache = source_id === "all" && default_target?.should_register_source
-    ? await cache_repository.get_cache(source.source_id)
-    : await require_cache(source.source_id, "Target source cache was not found");
-  const fallback_cache = source_id === "all" && default_target?.should_register_source
-    ? create_empty_cache(source)
-    : null;
-  const writable_cache = target_cache || fallback_cache;
-
-  if (!writable_cache) {
-    throw new Error("Target source cache was not found");
-  }
-
   const next_item = create_tab_bookmark(tab);
   const next_items = [...writable_cache.items_cache, next_item];
-  const next_document_title = writable_cache.source_snapshot?.document_title
-    || (source.path === GITHUB_BOOKMARKS_FILE_PATH ? "default bookmarks" : source.source_name);
+  const next_document_title = get_add_tab_document_title(source, writable_cache);
 
   if (source.type === "github") {
     const write_result = await write_github_document_with_retry(
@@ -72,20 +43,8 @@ export async function add_current_tab(source_id) {
       })
     );
 
-    if (source_id === "all" && default_target?.should_register_source) {
-      const root_source_id = get_root_source_id(source.source_id);
-      const root_source = await source_repository.get_source(root_source_id);
-
-      if (root_source) {
-        const file_paths = Array.isArray(root_source.file_paths) ? root_source.file_paths : [];
-
-        if (!file_paths.includes(source.path)) {
-          await source_repository.save_source({
-            ...root_source,
-            file_paths: [...file_paths, source.path]
-          });
-        }
-      }
+    if (target_context.should_register_source) {
+      await ensure_registered_github_file_path(source);
     }
 
     await save_github_cache(
@@ -97,18 +56,14 @@ export async function add_current_tab(source_id) {
       write_result.resolved_branch
     );
   } else {
-    await cache_repository.save_cache({
-      ...writable_cache,
-      items_cache: next_items,
-      last_synced_at: new Date().toISOString(),
-      last_remote_revision: "local-update",
+    await save_source_cache(source, {
+      cache: writable_cache,
+      items: next_items,
+      title: next_document_title,
+      revision: "local-update",
+      resolved_branch: writable_cache.source_snapshot?.resolved_branch ?? null,
       dirty: true,
-      last_error: null,
-      source_snapshot: create_source_snapshot(
-        source,
-        next_document_title,
-        target_cache?.source_snapshot?.resolved_branch ?? null
-      )
+      last_error: null
     });
   }
 

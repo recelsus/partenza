@@ -2,8 +2,10 @@ import {
   cache_repository,
   source_repository
 } from "./context.js";
-import { parse_github_cache_id } from "../lib/github_source_unit.js";
-import { build_scoped_github_source } from "./source_group_service.js";
+import {
+  build_scoped_github_source,
+  parse_github_cache_id
+} from "../lib/github_source_model.js";
 
 export async function require_source(source_id, message = "Source was not found") {
   const github_cache_id = parse_github_cache_id(source_id);
@@ -28,6 +30,16 @@ export async function require_cache(source_id, message = "Source cache was not f
   return cache;
 }
 
+export async function require_source_context(source_id, source_message, cache_message) {
+  const source = await require_source(source_id, source_message);
+  const cache = await require_cache(source_id, cache_message);
+
+  return {
+    source,
+    cache
+  };
+}
+
 export async function require_writable_source(source_id, not_found_message, read_only_message) {
   const source = await require_source(source_id, not_found_message);
 
@@ -38,6 +50,21 @@ export async function require_writable_source(source_id, not_found_message, read
   return source;
 }
 
+export async function require_writable_source_context(
+  source_id,
+  not_found_message,
+  read_only_message,
+  cache_message
+) {
+  const source = await require_writable_source(source_id, not_found_message, read_only_message);
+  const cache = await require_cache(source_id, cache_message);
+
+  return {
+    source,
+    cache
+  };
+}
+
 export async function require_writable_github_source(source_id, not_found_message, read_only_message) {
   const source = await require_writable_source(source_id, not_found_message, read_only_message);
 
@@ -46,6 +73,21 @@ export async function require_writable_github_source(source_id, not_found_messag
   }
 
   return source;
+}
+
+export async function require_writable_github_source_context(
+  source_id,
+  not_found_message,
+  read_only_message,
+  cache_message
+) {
+  const source = await require_writable_github_source(source_id, not_found_message, read_only_message);
+  const cache = await require_cache(source_id, cache_message);
+
+  return {
+    source,
+    cache
+  };
 }
 
 export function get_root_source_id(source_id) {

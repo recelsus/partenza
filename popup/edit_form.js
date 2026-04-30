@@ -1,10 +1,9 @@
 import { app_state } from "./state.js";
 import {
-  get_edit_target_option_label,
   get_source,
   get_source_cache,
   get_source_display_name,
-  sort_sources
+  list_writable_github_file_entries
 } from "./source_helpers.js";
 
 export function render_edit_target_hint(source_id) {
@@ -25,16 +24,14 @@ export function render_edit_target_hint(source_id) {
 
 export function populate_edit_form(source_id, bookmark) {
   const target_select = document.getElementById("edit_target_source_select");
-  const editable_sources = app_state.current_view_state.caches
-    .filter((entry) => entry.source_snapshot?.source_type === "github" && entry.source_snapshot?.writable)
-    .sort((left, right) => left.source_id.localeCompare(right.source_id));
+  const editable_sources = list_writable_github_file_entries(app_state.current_view_state);
 
   target_select.innerHTML = "";
 
   for (const editable_source of editable_sources) {
     const option = document.createElement("option");
     option.value = editable_source.source_id;
-    option.textContent = get_edit_target_option_label(app_state.current_view_state, editable_source.source_id);
+    option.textContent = `${editable_source.file_label} - ${editable_source.display_name}`;
     option.selected = editable_source.source_id === source_id;
     target_select.appendChild(option);
   }

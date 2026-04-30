@@ -4,17 +4,16 @@ import {
 import { reorder_items_by_ids } from "./github_helpers.js";
 import { apply_github_document_change } from "./github_document_change_service.js";
 import {
-  require_cache,
-  require_writable_github_source
+  require_writable_github_source_context
 } from "./source_context_service.js";
 
 export async function reorder_bookmarks(source_id, ordered_bookmark_ids) {
-  const source = await require_writable_github_source(
+  const { source, cache: target_cache } = await require_writable_github_source_context(
     source_id,
     "Target source was not found",
-    "Bookmark reordering is only supported for writable GitHub sources"
+    "Bookmark reordering is only supported for writable GitHub sources",
+    "Target source cache was not found"
   );
-  const target_cache = await require_cache(source_id, "Target source cache was not found");
 
   await apply_github_document_change(
     source,

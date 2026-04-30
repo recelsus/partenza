@@ -4,8 +4,7 @@ import {
 import { save_dirty_local_cache } from "./cache_save_service.js";
 import { apply_github_document_change } from "./github_document_change_service.js";
 import {
-  require_cache,
-  require_writable_source
+  require_writable_source_context
 } from "./source_context_service.js";
 
 function merge_bookmark_updates(items, bookmark_id, updates, updated_at) {
@@ -23,12 +22,12 @@ function merge_bookmark_updates(items, bookmark_id, updates, updated_at) {
 }
 
 export async function update_bookmark(source_id, bookmark_id, updates) {
-  const source = await require_writable_source(
+  const { source, cache: target_cache } = await require_writable_source_context(
     source_id,
     "Target source was not found",
-    "Selected source is read-only"
+    "Selected source is read-only",
+    "Target source cache was not found"
   );
-  const target_cache = await require_cache(source_id, "Target source cache was not found");
 
   const updated_at = new Date().toISOString();
   const next_items = merge_bookmark_updates(target_cache.items_cache, bookmark_id, updates, updated_at);

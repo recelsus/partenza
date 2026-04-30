@@ -1,43 +1,24 @@
 import { GITHUB_BOOKMARKS_FILE_PATH } from "../lib/github_adapter_helpers.js";
-import {
-  build_github_repo_key,
-  build_scoped_github_source
-} from "../lib/github_source_model.js";
-import {
-  create_empty_cache,
-  create_source_id
-} from "../lib/storage_repositories.js";
+import { create_source_id } from "../lib/storage_repositories.js";
 import {
   adapters,
   build_state,
-  cache_repository,
-  source_repository
 } from "./context.js";
+import {
+  assert_github_repo_is_unique,
+  initialise_github_repo_source
+} from "./github_repo_service.js";
+import {
+  assert_http_source_is_unique,
+  build_http_source,
+  initialise_http_source
+} from "./http_source_service.js";
 import { sync_source } from "./source_sync_service.js";
 
 export async function register_http_source(url) {
-  const existing_sources = await source_repository.list_sources();
-  const normalised_url = url.trim();
-  const has_duplicate = existing_sources.some((source) => {
-    return source.type === "http_static" && source.url === normalised_url;
-  });
-
-  if (has_duplicate) {
-    throw new Error("HTTP static source with the same URL is already registered");
-  }
-
-  const next_source = {
-    source_id: create_source_id("http"),
-    source_name: normalised_url,
-    type: "http_static",
-    enabled: true,
-    writable: false,
-    url: normalised_url
-  };
-
-  await adapters.http_static.validate_source(next_source);
-  await source_repository.save_source(next_source);
-  await cache_repository.save_cache(create_empty_cache(next_source));
+  await assert_http_source_is_unique(url);
+  const next_source = build_http_source(url);
+  await initialise_http_source(next_source);
   return sync_source(next_source.source_id);
 }
 
@@ -60,33 +41,12 @@ export async function register_github_source(input) {
     path: GITHUB_BOOKMARKS_FILE_PATH
   });
 
-  const existing_sources = await source_repository.list_sources();
-  const duplicate_repo = existing_sources.find((source) => {
-    return source.type === "github"
-      && build_github_repo_key(source) === build_github_repo_key(base_source);
-  });
+  await assert_github_repo_is_unique(base_source);
 
-  if (duplicate_repo) {
-    throw new Error("The same GitHub repository is already registered");
-  }
+  const initialised = await initialise_github_repo_source(base_source);
+  const next_source = initialised.source;
 
-  const discovered = await adapters.github.list_bookmark_files({
-    ...base_source,
-    path: GITHUB_BOOKMARKS_FILE_PATH
-  });
-  const discovered_paths = discovered.files.length > 0 ? discovered.files : [GITHUB_BOOKMARKS_FILE_PATH];
-  const next_source = {
-    ...base_source,
-    file_paths: discovered_paths
-  };
-
-  await source_repository.save_source(next_source);
-
-  for (const path of discovered_paths) {
-    await cache_repository.save_cache(create_empty_cache(build_scoped_github_source(next_source, path)));
-  }
-
-  if (discovered.files.length === 0) {
+  if (initialised.needs_template_creation) {
     return sync_source(next_source.source_id);
   }
 

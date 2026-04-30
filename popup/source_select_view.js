@@ -1,10 +1,9 @@
 import {
   get_selected_source_id,
-  get_source,
   get_source_cache,
   get_source_display_name,
   get_source_option_label,
-  get_file_label,
+  list_github_file_entries,
   sort_sources
 } from "./source_helpers.js";
 
@@ -29,21 +28,14 @@ export function render_sources(state, selected_source_id) {
 
   for (const source of ordered_sources) {
     if (source.type === "github") {
-      const caches = state.caches
-        .filter((entry) => entry.source_id.startsWith(`${source.source_id}::`))
-        .sort((left, right) => {
-          const left_source = get_source(state, left.source_id);
-          const right_source = get_source(state, right.source_id);
-          return get_file_label(left_source).localeCompare(get_file_label(right_source));
-        });
+      const file_entries = list_github_file_entries(state, source);
 
-      for (const cache of caches) {
-        const display_name = get_source_display_name(state, cache.source_id);
-        const scoped_source = get_source(state, cache.source_id);
+      for (const file_entry of file_entries) {
+        const display_name = get_source_display_name(state, file_entry.source_id);
         const option = document.createElement("option");
-        option.value = cache.source_id;
-        option.textContent = get_source_option_label(scoped_source, display_name);
-        option.selected = cache.source_id === selected_source_id;
+        option.value = file_entry.source_id;
+        option.textContent = get_source_option_label(file_entry.source, display_name);
+        option.selected = file_entry.source_id === selected_source_id;
         has_selected_source = has_selected_source || option.selected;
         source_select.appendChild(option);
       }

@@ -4,17 +4,16 @@ import {
 import { save_dirty_local_cache } from "./cache_save_service.js";
 import { apply_github_document_change } from "./github_document_change_service.js";
 import {
-  require_cache,
-  require_writable_source
+  require_writable_source_context
 } from "./source_context_service.js";
 
 export async function delete_bookmark(source_id, bookmark_id) {
-  const source = await require_writable_source(
+  const { source, cache: target_cache } = await require_writable_source_context(
     source_id,
     "Target source was not found",
-    "Selected source is read-only"
+    "Selected source is read-only",
+    "Target source cache was not found"
   );
-  const target_cache = await require_cache(source_id, "Target source cache was not found");
 
   const next_items = target_cache.items_cache.filter((item) => item.id !== bookmark_id);
 

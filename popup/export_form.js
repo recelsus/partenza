@@ -1,8 +1,8 @@
 import { app_state } from "./state.js";
 import {
+  list_writable_github_repo_sources,
   get_source,
-  get_source_display_name,
-  sort_sources
+  get_source_display_name
 } from "./source_helpers.js";
 
 export function render_export_target_hint(source_id) {
@@ -36,12 +36,7 @@ export function build_export_file_name_default(state, source_id) {
 
 export function populate_export_form(state, source_id) {
   const target_select = document.getElementById("export_target_source_select");
-  const github_sources = sort_sources(state.sources).filter((entry) => {
-    return entry.type === "github"
-      && entry.writable
-      && typeof entry.token === "string"
-      && entry.token.trim().length > 0;
-  });
+  const github_sources = list_writable_github_repo_sources(state);
 
   target_select.innerHTML = "";
 

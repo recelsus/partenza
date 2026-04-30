@@ -1,62 +1,9 @@
-import { app_state } from "./state.js";
-import { create_delete_icon, create_edit_icon } from "./bookmark_item_icons.js";
-import { handle_delete_bookmark } from "./bookmark_item_actions.js";
 import { apply_sortable_behaviour } from "./bookmark_item_sort.js";
-
-function create_tag_list(bookmark, render_bookmarks, state, deps) {
-  const visible_tags = bookmark.tags.slice(0, 3);
-
-  if (visible_tags.length === 0) {
-    return null;
-  }
-
-  const tag_list = document.createElement("div");
-  tag_list.className = "tag-list";
-
-  for (const tag of visible_tags) {
-    const tag_pill = document.createElement("button");
-    tag_pill.type = "button";
-    tag_pill.className = "tag-pill";
-    tag_pill.textContent = tag;
-    tag_pill.classList.toggle("active", app_state.active_tag_filter === tag);
-    tag_pill.addEventListener("click", () => {
-      app_state.active_tag_filter = app_state.active_tag_filter === tag ? null : tag;
-      render_bookmarks(state, deps);
-    });
-    tag_list.appendChild(tag_pill);
-  }
-
-  return tag_list;
-}
-
-function create_bookmark_actions(source_id, bookmark, writable, open_edit_view, apply_state) {
-  const actions = document.createElement("div");
-  actions.className = "bookmark-actions";
-
-  const edit_button = document.createElement("button");
-  edit_button.className = "action-button";
-  edit_button.innerHTML = create_edit_icon();
-  edit_button.disabled = !writable;
-  edit_button.title = writable ? "Edit bookmark" : "Read-only source";
-  edit_button.setAttribute("aria-label", writable ? "Edit bookmark" : "Read-only source");
-  edit_button.addEventListener("click", () => {
-    open_edit_view(source_id, bookmark.id);
-  });
-  actions.appendChild(edit_button);
-
-  const delete_button = document.createElement("button");
-  delete_button.className = "action-button";
-  delete_button.innerHTML = create_delete_icon();
-  delete_button.disabled = !writable;
-  delete_button.title = writable ? "Delete bookmark" : "Read-only source";
-  delete_button.setAttribute("aria-label", writable ? "Delete bookmark" : "Read-only source");
-  delete_button.addEventListener("click", () => {
-    handle_delete_bookmark(source_id, bookmark.id, bookmark.title, apply_state);
-  });
-  actions.appendChild(delete_button);
-
-  return actions;
-}
+import {
+  create_bookmark_actions,
+  create_sort_placeholder_actions
+} from "./bookmark_item_buttons.js";
+import { create_tag_list } from "./bookmark_item_tags.js";
 
 export function create_bookmark_item(entry, render_bookmarks, deps, state, is_sorting) {
   const { bookmark, source_id, writable } = entry;
@@ -98,9 +45,7 @@ export function create_bookmark_item(entry, render_bookmarks, deps, state, is_so
   if (!is_sorting) {
     head.appendChild(create_bookmark_actions(source_id, bookmark, writable, open_edit_view, apply_state));
   } else {
-    const actions = document.createElement("div");
-    actions.className = "bookmark-actions";
-    head.appendChild(actions);
+    head.appendChild(create_sort_placeholder_actions());
   }
 
   item.appendChild(head);

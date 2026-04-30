@@ -3,17 +3,16 @@ import {
 } from "./context.js";
 import { apply_github_document_change } from "./github_document_change_service.js";
 import {
-  require_cache,
-  require_writable_github_source
+  require_writable_github_source_context
 } from "./source_context_service.js";
 
 export async function update_document_title(source_id, next_title) {
-  const source = await require_writable_github_source(
+  const { source, cache: target_cache } = await require_writable_github_source_context(
     source_id,
     "Target source was not found",
-    "Document title edit is only supported for GitHub sources"
+    "Document title edit is only supported for GitHub sources",
+    "Target source cache was not found"
   );
-  const target_cache = await require_cache(source_id, "Target source cache was not found");
 
   const trimmed_title = typeof next_title === "string" ? next_title.trim() : "";
 
