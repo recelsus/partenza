@@ -71,14 +71,10 @@ export async function delete_github_file_from_repo(source, file_path) {
 
     const next_file_paths = file_paths.filter((entry) => entry !== file_path);
 
-    if (next_file_paths.length === 0) {
-        await source_repository.delete_source(source.source_id);
-    } else {
-        await source_repository.save_source({
-            ...source,
-            file_paths: next_file_paths
-        });
-    }
+    await source_repository.save_source({
+        ...source,
+        file_paths: next_file_paths
+    });
 
     return {
         state: await build_state(),
