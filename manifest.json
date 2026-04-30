@@ -9,7 +9,11 @@
     "sidePanel"
   ],
   "host_permissions": [
-    "<all_urls>"
+    "https://api.github.com/*"
+  ],
+  "optional_host_permissions": [
+    "http://*/*",
+    "https://*/*"
   ],
   "background": {
     "service_worker": "background.js",

@@ -1,0 +1,40 @@
+name: Release Extension Asset
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: write
+
+jobs:
+  release-extension-asset:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Verify samples
+        run: npm run verify:samples
+
+      - name: Package extension
+        run: npm run package:extension
+
+      - name: Prepare tagged asset name
+        run: cp build/partenza-bookmark-extension.zip "build/partenza-bookmark-extension-${{ github.event.release.tag_name }}.zip"
+
+      - name: Upload asset to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name }}" "build/partenza-bookmark-extension-${{ github.event.release.tag_name }}.zip" --clobber

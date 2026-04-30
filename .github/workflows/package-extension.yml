@@ -1,0 +1,37 @@
+name: Package Extension
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  package-extension:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Verify samples
+        run: npm run verify:samples
+
+      - name: Package extension
+        run: npm run package:extension
+
+      - name: Upload extension artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: partenza-bookmark-extension
+          path: build/partenza-bookmark-extension.zip
+          if-no-files-found: error
