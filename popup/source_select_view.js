@@ -64,16 +64,13 @@ export function update_add_tab_button(state) {
 
   if (selected_source_id === "all") {
     const has_default_github_target = state.sources.some((source) => {
-      return source.type === "github"
-        && source.writable
-        && typeof source.token === "string"
-        && source.token.trim().length > 0;
+      return source.type === "github" && source.writable;
     });
 
     add_tab_button.disabled = !has_default_github_target;
     add_tab_button.title = has_default_github_target
       ? "Add to default GitHub source"
-      : "A GitHub source with PAT is required";
+      : "A writable GitHub source is required";
     return;
   }
 

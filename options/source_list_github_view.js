@@ -16,15 +16,16 @@ export function render_github_group(state, sources, handlers, source_list) {
     title.textContent = `${primary_source.owner}/${primary_source.repo}`;
     wrapper.appendChild(title);
 
+    const file_entries = list_github_file_entries(state, primary_source);
+
     const meta = document.createElement("span");
-    meta.textContent = `github / ${primary_source.writable ? "writable" : "read-only"} / files: ${sources.length}`;
+    const visibility = typeof primary_source.visibility === "string" ? primary_source.visibility : "unknown";
+    meta.textContent = `github / ${visibility} / ${primary_source.writable ? "writable" : "read-only"} / files: ${file_entries.length}`;
     wrapper.appendChild(meta);
 
     const repo = document.createElement("span");
     repo.textContent = `branch: ${branch_label}`;
     wrapper.appendChild(repo);
-
-    const file_entries = list_github_file_entries(state, primary_source);
 
     for (const file_entry of file_entries) {
         const file_line = document.createElement("span");
@@ -42,15 +43,35 @@ export function render_github_group(state, sources, handlers, source_list) {
     });
     button_row.appendChild(sync_button);
 
+    const update_pat_button = document.createElement("button");
+    update_pat_button.textContent = "Update PAT";
+    update_pat_button.addEventListener("click", () => {
+        handlers.on_update_pat(primary_source.source_id);
+    });
+    button_row.appendChild(update_pat_button);
+
     const create_file_button = document.createElement("button");
     create_file_button.textContent = "New File";
+    create_file_button.disabled = !primary_source.writable;
+    create_file_button.title = primary_source.writable ? "" : "Writable GitHub access is required";
     create_file_button.addEventListener("click", () => {
         handlers.on_create_file(primary_source.source_id);
     });
     button_row.appendChild(create_file_button);
 
+    const delete_file_button = document.createElement("button");
+    delete_file_button.textContent = "Delete File";
+    delete_file_button.disabled = !primary_source.writable || file_entries.length === 0;
+    delete_file_button.title = !primary_source.writable
+        ? "Writable GitHub access is required"
+        : (file_entries.length === 0 ? "No GitHub files are registered" : "");
+    delete_file_button.addEventListener("click", () => {
+        handlers.on_delete_file(primary_source.source_id, file_entries.map((entry) => entry.file_path));
+    });
+    button_row.appendChild(delete_file_button);
+
     const delete_button = document.createElement("button");
-    delete_button.textContent = "Delete";
+    delete_button.textContent = "Delete Repository";
     delete_button.addEventListener("click", () => {
         handlers.on_delete(primary_source.source_id, `${primary_source.owner}/${primary_source.repo}`);
     });

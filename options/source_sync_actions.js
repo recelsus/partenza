@@ -11,6 +11,12 @@ export async function handle_sync_like_response(response, source_id, render_stat
     }
 
     if (response.data.needs_template_creation) {
+        if (response.data.can_create_template === false) {
+            await render_state();
+            set_status(response.data.message || "GitHub source is read-only", true);
+            return true;
+        }
+
         const should_create = window.confirm(
             `bookmarks/ is not initialised on branch ${response.data.resolved_branch}. Create bookmarks/bookmarks.json now?`
         );

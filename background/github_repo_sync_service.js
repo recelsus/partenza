@@ -22,8 +22,11 @@ export async function sync_github_repo_source(source) {
                 synced_source_id: source.source_id,
                 synced_source_ids,
                 needs_template_creation: true,
+                can_create_template: Boolean(source.writable),
                 resolved_branch: github_result.resolved_branch,
-                message: `bookmarks/ is not initialised on branch ${github_result.resolved_branch}`
+                message: source.writable
+                    ? `bookmarks/ is not initialised on branch ${github_result.resolved_branch}`
+                    : `bookmarks/ is not initialised on branch ${github_result.resolved_branch}, and this source is read-only`
             };
         }
 

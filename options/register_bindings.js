@@ -7,7 +7,7 @@ import {
 } from "./forms.js";
 import { ensure_http_origin_permission } from "./http_permission.js";
 import { handle_sync_like_response } from "./source_actions.js";
-import { set_loading_status, set_status } from "./status_bar.js";
+import { set_loading_status } from "./status_bar.js";
 
 export function bind_register_events(render) {
     document.getElementById("register_http_button").addEventListener("click", async () => {
@@ -26,7 +26,6 @@ export function bind_register_events(render) {
 
         if (success) {
             reset_http_form();
-            set_status("HTTP source was registered");
         }
     });
 
@@ -44,7 +43,6 @@ export function bind_register_events(render) {
 
         if (success) {
             reset_github_form();
-            set_status("GitHub repository was registered");
         }
     });
 }

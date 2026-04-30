@@ -38,6 +38,10 @@ export async function create_github_template(source_id) {
     throw new Error("Template creation is only supported for GitHub sources");
   }
 
+  if (!source.writable) {
+    throw new Error("Template creation is only supported for writable GitHub sources");
+  }
+
   return create_github_template_for_repo(source);
 }
 

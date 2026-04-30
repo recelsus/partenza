@@ -4,5 +4,7 @@ export {
 } from "./source_sync_actions.js";
 export {
     create_github_file,
-    delete_source
+    delete_github_file,
+    delete_source,
+    update_github_pat
 } from "./source_manage_actions.js";

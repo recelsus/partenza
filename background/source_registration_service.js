@@ -1,4 +1,5 @@
 import { GITHUB_BOOKMARKS_FILE_PATH } from "../lib/github_adapter_helpers.js";
+import { probe_github_repo_access } from "../lib/github_repo_access_service.js";
 import { create_source_id } from "../lib/storage_repositories.js";
 import {
   adapters,
@@ -28,7 +29,9 @@ export async function register_github_source(input) {
     source_name: `${input.owner.trim()}/${input.repo.trim()}`,
     type: "github",
     enabled: true,
-    writable: true,
+    readable: true,
+    writable: false,
+    visibility: "unknown",
     owner: input.owner.trim(),
     repo: input.repo.trim(),
     branch: input.branch.trim(),
@@ -41,9 +44,20 @@ export async function register_github_source(input) {
     path: GITHUB_BOOKMARKS_FILE_PATH
   });
 
-  await assert_github_repo_is_unique(base_source);
+  const access = await probe_github_repo_access({
+    ...base_source,
+    path: GITHUB_BOOKMARKS_FILE_PATH
+  });
+  const next_base_source = {
+    ...base_source,
+    readable: access.readable,
+    writable: access.writable,
+    visibility: access.visibility
+  };
 
-  const initialised = await initialise_github_repo_source(base_source);
+  await assert_github_repo_is_unique(next_base_source);
+
+  const initialised = await initialise_github_repo_source(next_base_source);
   const next_source = initialised.source;
 
   if (initialised.needs_template_creation) {

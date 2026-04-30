@@ -8,9 +8,7 @@ export async function find_default_github_add_target() {
         return source.type === "github"
             && source.writable
             && Array.isArray(source.file_paths)
-            && source.file_paths.includes(GITHUB_BOOKMARKS_FILE_PATH)
-            && typeof source.token === "string"
-            && source.token.trim().length > 0;
+            && source.file_paths.includes(GITHUB_BOOKMARKS_FILE_PATH);
     });
 
     if (default_source) {
@@ -21,10 +19,7 @@ export async function find_default_github_add_target() {
     }
 
     const fallback_source = sources.find((source) => {
-        return source.type === "github"
-            && source.writable
-            && typeof source.token === "string"
-            && source.token.trim().length > 0;
+        return source.type === "github" && source.writable;
     });
 
     if (!fallback_source) {

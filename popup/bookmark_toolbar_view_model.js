@@ -19,10 +19,7 @@ export function build_bookmark_toolbar_view_model(state, entry_context) {
     const is_sorting = entry_context.is_sorting ?? is_sort_mode_active_for(entry_context.selected_source_id);
     const can_sort = can_sort_selected_source(state, entry_context.selected_source_id);
     const has_github_target = state.sources.some((source) => {
-        return source.type === "github"
-            && source.writable
-            && typeof source.token === "string"
-            && source.token.trim().length > 0;
+        return source.type === "github" && source.writable;
     });
     const can_export = Boolean(
         entry_context.selected_source
@@ -34,6 +31,7 @@ export function build_bookmark_toolbar_view_model(state, entry_context) {
     const can_edit_title = Boolean(
         entry_context.selected_source
             && entry_context.selected_source.type === "github"
+            && entry_context.selected_source.writable
             && !is_sorting
     );
 

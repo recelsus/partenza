@@ -19,7 +19,9 @@ export type base_source = {
     source_name: string;
     type: source_type;
     enabled: boolean;
+    readable?: boolean;
     writable: boolean;
+    visibility?: "public" | "private" | "unknown";
 };
 
 export type github_source = base_source & {
@@ -80,7 +82,9 @@ export type bookmark_document = plain_bookmark_document | encrypted_bookmark_doc
 export type source_cache_snapshot = {
     source_name: string;
     source_type: source_type;
+    readable?: boolean;
     writable: boolean;
+    visibility?: "public" | "private" | "unknown" | null;
     locator: string;
     document_title: string | null;
     resolved_branch?: string | null;
