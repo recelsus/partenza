@@ -31,7 +31,7 @@ export function render_http_source(state, source, handlers, source_list) {
     const sync_button = document.createElement("button");
     sync_button.textContent = "Sync HTTP";
     sync_button.addEventListener("click", () => {
-        handlers.on_sync(source.source_id);
+        handlers.on_sync(source);
     });
     button_row.appendChild(sync_button);
 

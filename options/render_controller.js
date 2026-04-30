@@ -9,8 +9,8 @@ import { set_status } from "./status_bar.js";
 export function create_render_state() {
     async function render() {
         return render_state({
-            on_sync: (source_id) => {
-                sync_source(source_id, render).catch((error) => {
+            on_sync: (source) => {
+                sync_source(source, render).catch((error) => {
                     document.getElementById("state_dump").textContent = String(error);
                 });
             },

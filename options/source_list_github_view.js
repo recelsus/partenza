@@ -38,7 +38,7 @@ export function render_github_group(state, sources, handlers, source_list) {
     const sync_button = document.createElement("button");
     sync_button.textContent = "Sync GitHub";
     sync_button.addEventListener("click", () => {
-        handlers.on_sync(primary_source.source_id);
+        handlers.on_sync(primary_source);
     });
     button_row.appendChild(sync_button);
 

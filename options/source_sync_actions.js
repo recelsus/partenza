@@ -1,4 +1,5 @@
 import { send_message } from "./api.js";
+import { ensure_http_origin_permission } from "./http_permission.js";
 import { set_loading_status, set_status } from "./status_bar.js";
 
 export async function handle_sync_like_response(response, source_id, render_state) {
@@ -42,11 +43,19 @@ export async function handle_sync_like_response(response, source_id, render_stat
     return true;
 }
 
-export async function sync_source(source_id, render_state) {
+export async function sync_source(source, render_state) {
     set_loading_status("Syncing source...");
+    if (source?.type === "http_static" && typeof source.url === "string") {
+        await ensure_http_origin_permission(source.url);
+    }
+
     const response = await send_message({
         type: "sync_source",
-        source_id
+        source_id: typeof source === "string" ? source : source.source_id
     });
-    await handle_sync_like_response(response, source_id, render_state);
+    await handle_sync_like_response(
+        response,
+        typeof source === "string" ? source : source.source_id,
+        render_state
+    );
 }
