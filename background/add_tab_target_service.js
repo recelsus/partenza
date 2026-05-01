@@ -22,9 +22,7 @@ export async function resolve_add_target_context(source_id) {
     throw new Error("Target source was not found");
   }
 
-  const existing_cache = default_target.should_register_source
-    ? await cache_repository.get_cache(default_target.source.source_id)
-    : null;
+  const existing_cache = await cache_repository.get_cache(default_target.source.source_id);
 
   return {
     source: default_target.source,

@@ -39,12 +39,12 @@
   "commands": {
     "_execute_action": {
       "suggested_key": {
-        "default": "Ctrl+Shift+1"
+        "default": "Ctrl+Shift+2"
       }
     },
     "add-current-tab": {
       "suggested_key": {
-        "default": "Ctrl+Shift+2"
+        "default": "Ctrl+Shift+1"
       },
       "description": "Add current tab to bookmarks"
     }
